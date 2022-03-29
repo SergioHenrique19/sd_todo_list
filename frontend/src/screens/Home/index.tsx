@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import {
-  CheckCircleTwoTone, DeleteOutlined, EditOutlined, FileDoneOutlined, PlusOutlined,
+  CheckCircleTwoTone, DeleteTwoTone, EditOutlined, FileDoneOutlined, PlusOutlined,
 } from '@ant-design/icons';
 import {
   Button, Card, Checkbox, Col, DatePicker, Form, Input, Layout, Modal, Row, Spin, Typography,
@@ -47,6 +47,14 @@ export default function Home() {
     };
     setTarefaFormAtual(tarefaForm);
     setIsModalTarefaVisible(true);
+  }, []);
+
+  const handleOnClickToggleCompleta = React.useCallback((tarefa: Tarefa) => {
+    const toggle: Tarefa = {
+      ...tarefa,
+      completa: !tarefa.completa,
+    };
+    updateTarefaMutation.mutate(toggle);
   }, []);
 
   const handleOnFinishFormulario = React.useCallback((tarefaForm: TarefaForm) => {
@@ -117,9 +125,9 @@ export default function Home() {
                     <Card
                       className="card"
                       actions={[
-                        <DeleteOutlined key="delete" onClick={() => handleOnClickDeleteTarefa(tarefa)} />,
+                        <DeleteTwoTone twoToneColor="#eb2f96" key="delete" onClick={() => handleOnClickDeleteTarefa(tarefa)} />,
                         <EditOutlined key="editar" onClick={() => handleOnClickEditarTarefa(tarefa)} />,
-                        tarefa.completa ? <CheckCircleTwoTone key="completar" twoToneColor="#52c41a" /> : <FileDoneOutlined key="completar" />,
+                        tarefa.completa ? <CheckCircleTwoTone key="completar" twoToneColor="#52c41a" onClick={() => handleOnClickToggleCompleta(tarefa)} /> : <FileDoneOutlined key="completar" onClick={() => handleOnClickToggleCompleta(tarefa)} />,
                       ]}
                       key={tarefa.id}
                     >
