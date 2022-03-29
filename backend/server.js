@@ -54,11 +54,11 @@ app.delete("/tarefas/:id", (req, res, next) => {
 })
 
 // Atualiza uma tarefa
-app.patch("/tarefas/:id", (req, res, next) => {
+app.put("/tarefas/:id", (req, res, next) => {
   let data = {
     descricao: req.body.descricao,
     prazo: req.body.prazo,
-    completa: req.body.completa && req.body.completa == true ? 1 : 0
+    completa: req.body.completa == true ? 1 : 0
   }
 
   db.run(
