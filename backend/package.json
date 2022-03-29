@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Projeto de implementação de todo-list API com Express.js",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SergioHenrique19/sd_todo_list_api.git"
+  },
+  "author": "Sérgio Garcia e João Salgado",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SergioHenrique19/sd_todo_list_api/issues"
+  },
+  "homepage": "https://github.com/SergioHenrique19/sd_todo_list_api#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "sqlite3": "^5.0.2"
+  }
+}
