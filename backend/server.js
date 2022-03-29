@@ -1,4 +1,5 @@
 let express = require("express")
+let cors = require("cors")
 let app = express()
 let db = require("./database")
 
@@ -7,6 +8,9 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 let HTTP_PORT = 8080
+
+// Habilita CORS
+app.use(cors())
 
 // Inicia o servidor
 app.listen(HTTP_PORT, () => {
