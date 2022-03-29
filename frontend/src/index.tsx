@@ -1,12 +1,18 @@
-import 'antd/dist/antd.css';
+import { ConfigProvider } from 'antd';
+import 'antd/dist/antd.min.css';
+import locale from 'antd/lib/locale/pt_BR';
+import 'moment/locale/pt-br';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import Home from 'screens/Home';
+import './index.css';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ConfigProvider locale={locale}>
+      <Home />
+    </ConfigProvider>
   </React.StrictMode>,
   document.getElementById('root'),
 );
