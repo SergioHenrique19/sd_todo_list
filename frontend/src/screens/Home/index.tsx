@@ -1,19 +1,30 @@
+/* eslint-disable no-unused-vars */
 import {
   CheckCircleTwoTone, DeleteOutlined, EditOutlined, FileDoneOutlined, PlusOutlined,
 } from '@ant-design/icons';
 import {
-  Button, Card, Checkbox, Col, DatePicker, Form, Input, Layout, Modal, Row, Typography,
+  Button, Card, Checkbox, Col, DatePicker, Form, Input, Layout, Modal, Row, Spin, Typography,
 } from 'antd';
 import Tarefa from 'interfaces/tarefa';
+import TarefaForm from 'interfaces/tarefaForm';
 import moment from 'moment';
 import React from 'react';
+import { useMutation, useQuery } from 'react-query';
+import {
+  createTarefa, deleteTarefa, getTarefas, updateTarefa,
+} from 'services/tarefas';
 import './index.css';
 
 const { Title, Text } = Typography;
 const { Header, Content, Footer } = Layout;
 
 export default function Home() {
-  const [tarefaAtual, setTarefaAtual] = React.useState<Tarefa|undefined>(undefined);
+  const { isLoading, data, refetch } = useQuery('tarefas', getTarefas);
+  const deleteTarefaMutation = useMutation(deleteTarefa, { onSuccess: () => refetch() });
+  const createTarefaMutation = useMutation(createTarefa, { onSuccess: () => refetch() });
+  const updateTarefaMutation = useMutation(updateTarefa, { onSuccess: () => refetch() });
+
+  const [tarefaFormAtual, setTarefaFormAtual] = React.useState<TarefaForm|undefined>(undefined);
   const [isModalTarefaVisible, setIsModalTarefaVisible] = React.useState(false);
 
   const handleOnCancelModalTarefa = React.useCallback(() => {
@@ -21,49 +32,49 @@ export default function Home() {
   }, []);
 
   const handleOnClickCriarTarefa = React.useCallback(() => {
-    setTarefaAtual(undefined);
+    setTarefaFormAtual(undefined);
     setIsModalTarefaVisible(true);
+  }, []);
+
+  const handleOnClickDeleteTarefa = React.useCallback((tarefa:Tarefa) => {
+    deleteTarefaMutation.mutate(tarefa.id);
   }, []);
 
   const handleOnClickEditarTarefa = React.useCallback((tarefa: Tarefa) => {
-    setTarefaAtual(tarefa);
+    const tarefaForm: TarefaForm = {
+      ...tarefa,
+      prazo: moment(tarefa.prazo),
+    };
+    setTarefaFormAtual(tarefaForm);
     setIsModalTarefaVisible(true);
   }, []);
 
-  const handleOnFinishFormulario = React.useCallback((values: Tarefa) => {
-    console.log(values);
+  const handleOnFinishFormulario = React.useCallback((tarefaForm: TarefaForm) => {
+    if (tarefaFormAtual) {
+      const tarefa: Tarefa = {
+        ...tarefaForm,
+        id: tarefaFormAtual.id,
+        prazo: tarefaForm.prazo.toISOString(),
+      };
+      updateTarefaMutation.mutate(tarefa);
+    } else {
+      const tarefa: Tarefa = {
+        ...tarefaForm,
+        prazo: tarefaForm.prazo.toISOString(),
+      };
+      createTarefaMutation.mutate(tarefa);
+    }
     setIsModalTarefaVisible(false);
-  }, []);
-
-  const tarefas: Tarefa[] = [
-    {
-      id: 0, descricao: 'teste 1', completa: true, prazo: moment('2016-08-29T09:12:33.001Z'),
-    },
-    {
-      id: 1, descricao: 'teste 2', completa: false, prazo: moment('2016-08-30T09:12:33.001Z'),
-    },
-    {
-      id: 2, descricao: 'teste 3', completa: true, prazo: moment('2016-08-31T09:12:33.001Z'),
-    },
-    {
-      id: 3, descricao: 'teste 4', completa: true, prazo: moment('2016-02-29T09:12:33.001Z'),
-    },
-    {
-      id: 4, descricao: 'teste 5', completa: false, prazo: moment('2016-07-30T09:12:33.001Z'),
-    },
-    {
-      id: 5, descricao: 'teste 6', completa: true, prazo: moment('2016-09-31T09:12:33.001Z'),
-    },
-  ];
+  }, [tarefaFormAtual]);
 
   return (
     <>
-      <Modal destroyOnClose title={tarefaAtual ? 'Editar Tarefa' : 'Criar Tarefa'} onCancel={handleOnCancelModalTarefa} visible={isModalTarefaVisible} footer={null}>
+      <Modal destroyOnClose title={tarefaFormAtual ? 'Editar Tarefa' : 'Criar Tarefa'} onCancel={handleOnCancelModalTarefa} visible={isModalTarefaVisible} footer={null}>
         <Form
           name="basic"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
-          initialValues={tarefaAtual}
+          initialValues={tarefaFormAtual}
           onFinish={handleOnFinishFormulario}
           autoComplete="off"
         >
@@ -86,7 +97,7 @@ export default function Home() {
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
             <Button type="primary" htmlType="submit" className="full-width">
-              {tarefaAtual ? 'Editar' : 'Criar'}
+              {tarefaFormAtual ? 'Editar' : 'Criar'}
             </Button>
           </Form.Item>
         </Form>
@@ -94,34 +105,36 @@ export default function Home() {
       <Layout className="full-height">
         <Header>Header</Header>
         <Content className="full-height content">
-          <div className="frame">
-            <Row justify="space-between">
-              <Col><Title level={2}>Tarefas</Title></Col>
-              <Col><Button icon={<PlusOutlined />} type="primary" onClick={handleOnClickCriarTarefa}>Criar Tarefa</Button></Col>
-            </Row>
-            <Row gutter={16}>
-              {tarefas.map((tarefa) => (
-                <Col span={24} md={12} lg={8} xl={6}>
-                  <Card
-                    className="card"
-                    actions={[
-                      <DeleteOutlined key="apagar" />,
-                      <EditOutlined key="editar" onClick={() => handleOnClickEditarTarefa(tarefa)} />,
-                      tarefa.completa ? <CheckCircleTwoTone twoToneColor="#52c41a" /> : <FileDoneOutlined />,
-                    ]}
-                    key={tarefa.id}
-                  >
-                    <div>
-                      <Text>{tarefa.descricao}</Text>
-                    </div>
-                    <div>
-                      <Text type="secondary">{tarefa.prazo.toLocaleString()}</Text>
-                    </div>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </div>
+          <Spin spinning={isLoading || createTarefaMutation.isLoading || deleteTarefaMutation.isLoading} className="full-height">
+            <div className="frame">
+              <Row justify="space-between">
+                <Col><Title level={2}>Tarefas</Title></Col>
+                <Col><Button icon={<PlusOutlined />} type="primary" onClick={handleOnClickCriarTarefa}>Criar Tarefa</Button></Col>
+              </Row>
+              <Row gutter={16}>
+                {data?.map((tarefa) => (
+                  <Col span={24} md={12} lg={8} xl={6}>
+                    <Card
+                      className="card"
+                      actions={[
+                        <DeleteOutlined key="delete" onClick={() => handleOnClickDeleteTarefa(tarefa)} />,
+                        <EditOutlined key="editar" onClick={() => handleOnClickEditarTarefa(tarefa)} />,
+                        tarefa.completa ? <CheckCircleTwoTone key="completar" twoToneColor="#52c41a" /> : <FileDoneOutlined key="completar" />,
+                      ]}
+                      key={tarefa.id}
+                    >
+                      <div>
+                        <Text>{tarefa.descricao}</Text>
+                      </div>
+                      <div>
+                        <Text type="secondary">{new Date(tarefa.prazo).toLocaleString('pt-BR')}</Text>
+                      </div>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </div>
+          </Spin>
         </Content>
         <Footer>
           <Text>João Victor Teófilo Salgado &amp; Sérgio Henrique Menta Garcia</Text>

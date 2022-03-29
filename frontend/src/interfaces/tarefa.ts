@@ -1,9 +1,7 @@
-import { Moment } from 'moment';
-
 interface Tarefa {
   id: number
   descricao: string,
-  prazo: Moment,
+  prazo: string,
   completa: boolean
 }
 
